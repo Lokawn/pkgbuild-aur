@@ -1,4 +1,4 @@
-FROM martynas/archlinux:latest
+FROM archlinux:base-devel
 
 # update package index to the latest (common issue for all archlinux docker image)
 RUN pacman -Syu --noconfirm

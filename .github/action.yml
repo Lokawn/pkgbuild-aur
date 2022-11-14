@@ -7,9 +7,9 @@ inputs:
   pkg-name:
     description: 'ArchLinux package name to build'
     required: true
-    default: 'wps-office'
+    default: 'wsl2-kernel'
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.pkg-name }}
+    - ${{ matrix.pkgs }}
