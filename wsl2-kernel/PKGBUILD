@@ -1,0 +1,54 @@
+# Maintainer: Lokawn
+
+pkgbase=wsl2-kernel-custom
+pkgver=5.15.74.2.wsl1
+pkgrel=1
+pkgdesc='Linux Kernel-WSL2'
+_srctag=v${pkgver%.*}
+url="https://github.com/archlinux/linux/commits/$_srctag"
+arch=(x86_64)
+license=(GPL2)
+makedepends=(
+  bc libelf pahole cpio perl tar xz
+  xmlto python-sphinx python-sphinx_rtd_theme graphviz imagemagick texlive-latexextra
+  git
+)
+options=('!strip')
+_srcname=WSL2-Custom-Linux-Kernel
+source=(
+  "$_srcname::git+https://github.com/microsoft/WSL2-Linux-Kernel#tag=$_srctag"
+  config         # the main kernel config file
+)
+sha256sums=('SKIP'
+            '9406b80a9c12ede38e4cf0db5fc23e63fdcecb9c52e20e22976048d716c77a73')
+
+export KBUILD_BUILD_HOST=archlinux
+export KBUILD_BUILD_USER=$pkgbase
+export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
+
+prepare() {
+  cd $_srcname
+
+  echo "Setting version..."
+  scripts/setlocalversion --save-scmversion
+  echo "-$pkgrel" > localversion.10-pkgrel
+  echo "${pkgbase#linux}" > localversion.20-pkgname
+
+  echo "Setting config..."
+  cp ../config config-wsl2-kernel-custom
+
+  make -s kernelrelease > version
+  echo "Prepared $pkgbase version $(<version)"
+}
+
+build() {
+  cd $_srcname
+  make KCONFIG_CONFIG=./config-wsl2-kernel-custom
+  make modules_install
+}
+
+_package() {
+  echo Done
+}
+
+# vim:set ts=8 sts=2 sw=2 et:
